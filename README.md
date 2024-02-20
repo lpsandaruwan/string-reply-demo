@@ -1,104 +1,56 @@
-# Your Task
-Our company has released a beta version of **String Reply Service** and it has been a huge success.
-In the current implementation (as part of boilerplate code), the **String Reply Service** takes in an input string (in the format of `[a-z0-9]*`)
-and returns the input in a JSON object.
+## Reply Service - Beta
 
-For example,
+### Prerequisites
 
-```
-GET /reply/kbzw9ru
-{
-    "data": "kbzw9ru"
-}
+The project can be run using docker or standalone java installation.(This project has been developed using openjdk-11)
+
+#### Run with docker
+```shell
+docker-compose build
+docker-compose up -d
 ```
 
-As the service is widely adopted, there have been increasing feature requests.
-Our project manager has come back with the following requirements for V2 of the service:
-
-The input string will now be comprised of two components, a rule and a string, separated by a dash (-).
-Rules **always** contain two numbers. Each number represents a string operation.
-
-The supported numbers are:
-
-- `1`: reverse the string
-
-   E.g. `kbzw9ru` becomes `ur9wzbk`
-
-- `2`: encode the string via MD5 hash algorithm and display as hex
-
-   E.g. `kbzw9ru` becomes `0fafeaae780954464c1b29f765861fad`
-
-The numbers are applied in sequence, i.e. the output of the first rule will
-serve as the input of the second rule. The numbers can also be repeated,
-i.e. a rule of 11 would mean reversing the string twice, resulting in no change to the string.
-
-Giving a few examples,
-
-```
-GET /v2/reply/11-kbzw9ru
-{
-    "data": "kbzw9ru"
-}
-```
-```
-GET /v2/reply/12-kbzw9ru
-{
-    "data": "5a8973b3b1fafaeaadf10e195c6e1dd4"
-}
-```
-```
-GET /v2/reply/22-kbzw9ru
-{
-    "data": "e8501e64cf0a9fa45e3c25aa9e77ffd5"
-}
-```
-
-## What you need to do
-Use the boilerplate given and implement the above requirement.
-Your implementation should also consider:
-
-- Maintain the existing endpoint for backward compatibility.
-- Implement V2 endpoint for the above new requirements.
-- Additional rules are expected in future releases. The updates in rule set
-should have minimal code changes and impact to existing functionality.
-- Testability for individual rule and the application.
-Unit tests are highly recommended.
-- Endpoints should return correct status code and response message.
-For invalid request, it should return status code `400`
-with message `"Invalid input"`, for example:
-   ```
-   GET /v2/reply/13-kbzw9ru
-   {
-       "message": "Invalid input"
-   }
-   ```
-
-Upon completing the task, please feel free to (though not required):
-
-- host your code on Github
-- include any readme to explain your setup/environment
-- add/implement anything you think would be beneficial
-
-## Build project
-
-To build the project, simply run
-```
+#### Or run with Java local installation.
+```shell
 ./gradlew build
+java -jar build/libs/rest-service-0.0.1-SNAPSHOT.jar
 ```
 
-## Start project
+After running please access the APIs via host `http://localhost:8080`.
 
-To start the project, simply run
+### APIs
+
+1. **GET** `${HOST:PORT}/api/v2/rules` - List down available rules for text transformation.
+2. **GET** `${HOST:PORT}/api/v2/reply/<stringInput>` - Transform message, using regex format `\d{2}-[a-z0-9]*`.
+3. **GET** `${HOST:PORT}/api/v1/reply/<stringInput>` - Legacy transform message API.
+
+### Adding a new transformation rule.
+
+1. Add a rule record in `rule` table in database first. Please find table attributes below.
+```sql
+TABLE rule (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    index INT UNIQUE NOT NULL,
+    operation VARCHAR(255) NOT NULL,
+    description VARCHAR(255)
+);
 ```
-./gradlew bootRun
+Example:
+```sql
+INSERT INTO rule (id, index, operation, description) VALUES (1, 1, 'REVERSE', 'Reverse the given string.')
 ```
 
-Once the service started, the endpoint will be available at `localhost:8080`, so you can make request to the service endpoint
+2. Implement the operation method in `com/beta/replyservice.rule.operation.Operations` class.
+3. Update the switching condition in `applyOperation` method of, `com/beta/replyservice.rule.operation.RuleFacadeImpl`.
 
-```json
-GET localhost:8080/reply/helloworld
+### Configurations
 
-{
-    message: "helloword"
-}
-```
+Related configurations can be found in `resources/application.properties`.
+- Application is currently using h2 in memory database and that can be changed as the per requirement.
+- Each time app will restart database will be reset. That behaviour also can be changed.
+- H2 console is available at `${HOST:PORT}/h2-console/`
+
+
+### License
+
+MIT, 2024, Lahiru Pathirage.
