@@ -3,6 +3,7 @@ package com.beta.replyservice.rule.operation;
 import com.beta.replyservice.message.Result;
 import com.beta.replyservice.rule.Rule;
 import com.beta.replyservice.rule.RuleService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
+@Slf4j
 public class RuleFacadeImpl implements RuleFacade {
 
     private final Operations operations;
@@ -31,6 +33,7 @@ public class RuleFacadeImpl implements RuleFacade {
             case "UPPERCASE":
                 return this.operations.toUpperCase(string);
             default:
+                log.error("Invalid operation code provided: {}", operation);
                 return null;
         }
     }
@@ -51,12 +54,16 @@ public class RuleFacadeImpl implements RuleFacade {
                 if (modifiedString != null) {
                     mutableString = new StringBuilder(modifiedString);
                 } else {
+                    log.debug("string to transform: {}", mutableString);
+                    log.error("Error occurred while transforming text!");
                     return new Result(false, 500, "Internal server error!");
                 }
             } else {
+                log.error("Could not find rule for index {}", index);
                 return new Result(false, 400, "Invalid operation indices!");
             }
         }
+        log.info("Successfully transformed the text: {}", string);
         return new Result(true, 200, mutableString.toString());
     }
 }

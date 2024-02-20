@@ -1,11 +1,13 @@
 package com.beta.replyservice.rule.operation;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 @Component
+@Slf4j
 public class Operations {
 
     private String convertToMD5(String input) {
@@ -19,6 +21,7 @@ public class Operations {
             }
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
+            log.error(e.getMessage());
             return null;
         }
     }
