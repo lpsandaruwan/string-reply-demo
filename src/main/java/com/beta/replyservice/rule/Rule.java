@@ -1,4 +1,4 @@
-package com.beta.replyservice.ruleservice;
+package com.beta.replyservice.rule;
 
 import lombok.Data;
 

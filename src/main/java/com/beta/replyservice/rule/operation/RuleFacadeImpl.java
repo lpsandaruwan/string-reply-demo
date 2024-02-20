@@ -1,10 +1,12 @@
-package com.beta.replyservice.ruleservice.operation;
+package com.beta.replyservice.rule.operation;
 
-import com.beta.replyservice.ruleservice.Rule;
-import com.beta.replyservice.ruleservice.RuleService;
+import com.beta.replyservice.message.Result;
+import com.beta.replyservice.rule.Rule;
+import com.beta.replyservice.rule.RuleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +22,6 @@ public class RuleFacadeImpl implements RuleFacade {
         this.ruleService = ruleService;
     }
 
-
     private String applyOperation(String string, String operation) {
         switch (operation) {
             case "REVERSE":
@@ -35,13 +36,13 @@ public class RuleFacadeImpl implements RuleFacade {
     }
 
     @Override
-    public String transform(String string, List<Integer> opIndexes) {
+    public Result transform(String string, List<Integer> opIndexes) {
         StringBuilder mutableString = new StringBuilder(string);
         List<Rule> rules = ruleService.getRulesByIndices(opIndexes);
         if (rules.size() != opIndexes.size()) {
-            return null;
+            return new Result(false, 400, "Invalid operation indices!");
         }
-        for (int index: opIndexes) {
+        for (int index : opIndexes) {
             Optional<Rule> rule = rules.stream()
                     .filter(obj -> obj.getIndex() == index)
                     .findFirst();
@@ -49,9 +50,13 @@ public class RuleFacadeImpl implements RuleFacade {
                 String modifiedString = this.applyOperation(mutableString.toString(), rule.get().getOperation());
                 if (modifiedString != null) {
                     mutableString = new StringBuilder(modifiedString);
+                } else {
+                    return new Result(false, 500, "Internal server error!");
                 }
+            } else {
+                return new Result(false, 400, "Invalid operation indices!");
             }
         }
-        return mutableString.toString();
+        return new Result(true, 200, mutableString.toString());
     }
 }

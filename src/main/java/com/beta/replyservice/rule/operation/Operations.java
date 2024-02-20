@@ -1,4 +1,4 @@
-package com.beta.replyservice.ruleservice.operation;
+package com.beta.replyservice.rule.operation;
 
 import org.springframework.stereotype.Component;
 

@@ -1,9 +1,8 @@
-package com.beta.replyservice.ruleservice;
+package com.beta.replyservice.rule;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
 import java.util.List;
 
 
