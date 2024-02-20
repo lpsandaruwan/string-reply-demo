@@ -1,9 +1,12 @@
-package com.beta.ruleservice;
+package com.beta.replyservice.ruleservice;
+
+import lombok.Data;
 
 import javax.persistence.*;
 
 
 @Entity
+@Data
 public class Rule {
 
     @Id
